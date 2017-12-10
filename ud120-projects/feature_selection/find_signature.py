@@ -4,6 +4,7 @@ import pickle
 import numpy
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
 
 numpy.random.seed(42)
 
@@ -32,7 +33,7 @@ features_train = vectorizer.fit_transform(features_train)
 features_test = vectorizer.transform(features_test).toarray()
 
 # how many train points?
-print("Train points:", len(features_train))
+
 
 # a classic way to overfit is to use a small number
 # of data points and a large number of features;
@@ -41,3 +42,24 @@ features_train = features_train[:150].toarray()
 labels_train = labels_train[:150]
 
 # your code goes here
+print("Train points:", features_train.shape[0])
+
+# create a Decision Tree classifier
+clf = DecisionTreeClassifier()
+clf.fit(features_train, labels_train)
+# My training score of Decision Tree
+print("Test Score: ", clf.score(features_test, labels_test))
+
+# Finding the most important feature
+feature_imp_list = clf.feature_importances_
+i = 0
+for feature_imp in feature_imp_list:
+    if feature_imp > 0.2:
+        print("the importance of the significance:", feature_imp,
+              "\nThe number of this feature:", i)
+    i += 1
+
+# find the most important word in the feature list
+word_list = vectorizer.get_feature_names()
+print("The most important word:", word_list[21323])
+
