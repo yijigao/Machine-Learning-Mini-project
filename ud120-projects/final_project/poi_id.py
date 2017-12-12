@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import pickle
-
 from tools.feature_format import featureFormat, targetFeatureSplit
 from final_project.tester import dump_classifier_and_data
 from sklearn.naive_bayes import GaussianNB
@@ -10,14 +9,41 @@ from sklearn.model_selection import train_test_split
 # Task 1: Select what features you'll use.
 # features_list is a list of strings, each of which is a feature name.
 # The first feature must be "poi".
-features_list = ['poi','salary']  # You will need to use more features
+features_list = ["poi", "salary", "bonus", "from_this_person_to_poi", "from_poi_to_this_person"]  # You will need to use more features
 
 # Load the dictionary containing the dataset
 with open("final_project_dataset_unix.pkl", "rb") as data_file:
     data_dict = pickle.load(data_file)
 
 # Task 2: Remove outliers
+print("Before Clean:", len(data_dict))
+# Clean data
+def data_clean(data, feature):
+    # remove "TOTAL"
+    data_dict.pop("TOTAL", 0)
+    name_have_NaN = []
+    for name in data:
+        if data[name][feature] == "NaN":
+            if name not in name_have_NaN:
+                name_have_NaN.append(name)
+    for name in name_have_NaN:
+        data.pop(name, 0)
+    return data
+
+for feature in features_list:
+    data_clean(data_dict, feature)
+# Test if there still have NaN in data_dict
+def test_NaN(data):
+    for name in data:
+        for feature in features_list:
+            if data_dict[name][feature] == "NaN":
+                return name, feature
+print(test_NaN(data_dict))
+print("After Clean:", len(data_dict))
+
 # Task 3: Create new feature(s)
+
+
 # Store to my_dataset for easy export below.
 my_dataset = data_dict
 
@@ -46,6 +72,7 @@ clf = GaussianNB()
 
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
+
 
 # Task 6: Dump your classifier, dataset, and features_list so anyone can
 # check your results. You do not need to change anything below, but make sure
