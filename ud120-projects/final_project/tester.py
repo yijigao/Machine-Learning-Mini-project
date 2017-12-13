@@ -13,6 +13,7 @@
 import pickle
 from sklearn.model_selection import StratifiedShuffleSplit
 from tools.feature_format import featureFormat, targetFeatureSplit
+from time import time
 
 PERF_FORMAT_STRING = "\
 \tAccuracy: {:>0.{display_precision}f}\tPrecision: {:>0.{display_precision}f}\t\
@@ -22,6 +23,7 @@ RESULTS_FORMAT_STRING = "\tTotal predictions: {:4d}\tTrue positives: {:4d}\tFals
 
 
 def test_classifier(clf, dataset, feature_list, folds=1000):
+    t0 = time()
     data = featureFormat(dataset, feature_list, sort_keys=True)
     labels, features = targetFeatureSplit(data)
     cv = StratifiedShuffleSplit(folds, random_state=42)
@@ -69,6 +71,7 @@ def test_classifier(clf, dataset, feature_list, folds=1000):
         print(PERF_FORMAT_STRING.format(accuracy, precision, recall, f1, f2, display_precision=5))
         print(RESULTS_FORMAT_STRING.format(total_predictions, true_positives, false_positives, false_negatives,
                                            true_negatives))
+        print("Test finished in", round((time()-t0), 3), "s")
         print("")
     except:
         print("Got a divide by zero when trying out:", clf)
