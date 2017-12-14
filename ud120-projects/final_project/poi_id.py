@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import pickle
+import pprint
 
 from tools.feature_format import featureFormat, targetFeatureSplit
 from final_project.tester import dump_classifier_and_data
@@ -19,8 +20,14 @@ from final_project.tester import test_classifier
 # Task 1: Select what features you'll use.
 # features_list is a list of strings, each of which is a feature name.
 # The first feature must be "poi".
-features_list = ["poi","bonus", "exercised_stock_options", "director_fees"]  # You will need to use more features
+all_features_list = ['poi', 'salary', 'deferral_payments', 'total_payments', 'loan_advances', 'bonus',
+                     'restricted_stock_deferred', 'deferred_income', 'total_stock_value', 'expenses',
+                     'exercised_stock_options', 'other', 'long_term_incentive', 'restricted_stock',
+                     'director_fees','to_messages', 'from_poi_to_this_person', 'from_messages',
+                     'from_this_person_to_poi', 'shared_receipt_with_poi']
 
+# features_list = ["poi","bonus", "exercised_stock_options", "director_fees"]  # You will need to use more features
+features_list = ["poi", "bonus", "total_stock_value", "exercised_stock_options"]
 # Load the dictionary containing the dataset
 with open("final_project_dataset_unix.pkl", "rb") as data_file:
     data_dict = pickle.load(data_file)
@@ -53,9 +60,18 @@ featureFormat(dictionary, features, remove_NaN=True, remove_all_zeroes=True, rem
         NOTE: first feature is assumed to be 'poi' and is not checked for
             removal for zero or missing values.
 """
-data = featureFormat(my_dataset, features_list, sort_keys=True, remove_all_zeroes=False, remove_any_zeroes=False)
+data = featureFormat(my_dataset, all_features_list, sort_keys=True, remove_all_zeroes=False, remove_any_zeroes=False)
 print("After Clean:", len(data))
 labels, features = targetFeatureSplit(data)
+
+# 使用SelectKBest选取特征
+selector = SelectKBest()
+selector.fit_transform(features, labels)
+# 提取分数，打印按分数排序的特征列表
+features_scores = {feature : score for feature, score in zip(all_features_list[1:], selector.scores_)}
+sorted_features_scores = sorted(features_scores.items(), key=lambda a:a[1], reverse=True)
+pprint.pprint(sorted_features_scores[:5])
+
 
 # Task 4: Try a variety of classifiers
 # Please name your classifier clf for easy export below.
@@ -64,15 +80,15 @@ labels, features = targetFeatureSplit(data)
 # http://scikit-learn.org/stable/modules/pipeline.html
 
 # Provided to give you a starting point. Try a variety of classifiers.
-clf = KNeighborsClassifier(n_neighbors=3)
-
-names = ["Naive Bayes", "Decision Tree", "Nearest Neighbor", "Random Forest", "AdaBoost"]
-
-classifiers = [GaussianNB(),
-               DecisionTreeClassifier(),
-               KNeighborsClassifier(n_neighbors=3),
-               RandomForestClassifier(),
-               AdaBoostClassifier(base_estimator=DecisionTreeClassifier())]
+# clf = KNeighborsClassifier(n_neighbors=3)
+#
+# names = ["Naive Bayes", "Decision Tree", "Nearest Neighbor", "Random Forest", "AdaBoost"]
+#
+# classifiers = [GaussianNB(),
+#                DecisionTreeClassifier(),
+#                KNeighborsClassifier(n_neighbors=3),
+#                RandomForestClassifier(),
+#                AdaBoostClassifier(base_estimator=DecisionTreeClassifier())]
 # parameters = {"Naive Bayes":{},
 #               "Decision Tree":{"max_depth": range(5,15),
 #                                "min_samples_leaf": range(1,5)},
@@ -108,13 +124,12 @@ classifiers = [GaussianNB(),
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
-for name, clf in zip(names, classifiers):
-    test_classifier(clf, my_dataset, features_list, folds=1000)
-
+# for name, clf in zip(names, classifiers):
+#     test_classifier(clf, my_dataset, features_list, folds=1000)
 
 # Task 6: Dump your classifier, dataset, and features_list so anyone can
 # check your results. You do not need to change anything below, but make sure
 # that the version of poi_id.py that you submit can be run on its own and
 # generates the necessary .pkl files for validating your results.
 
-dump_classifier_and_data(clf, my_dataset, features_list)
+# dump_classifier_and_data(clf, my_dataset, features_list)
