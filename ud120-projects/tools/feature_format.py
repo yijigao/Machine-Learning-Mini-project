@@ -36,7 +36,7 @@ import numpy as np
 def featureFormat(dictionary, features, remove_NaN=True, remove_all_zeroes=True, remove_any_zeroes=False,
                   sort_keys=False):
     """ convert dictionary to numpy array of features
-        remove_NaN = True will convert "NaN" string to 0.0
+        remove_NaN = True will convert "NaN" string to 0.0 => Avg
         remove_all_zeroes = True will omit any data points for which
             all the features you seek are 0.0
         remove_any_zeroes = True will omit any data points for which
